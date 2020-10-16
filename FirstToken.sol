@@ -5,9 +5,8 @@ contract FirstToken {
     mapping(address => bool) public investors;
     mapping(address => uint256) public balances;
     address payable wallet;
-    address public owner = msg.sender;
-    address public formateur = 0x57D401B8502bC5CBBaAfD2564236dE4571165051;
-    address[] public investor;
+    address public owner;
+    address public formateur;
 
     event Purchase(
         address indexed _buyer,
@@ -16,6 +15,8 @@ contract FirstToken {
 
     constructor(address payable _wallet) public {
         wallet = _wallet;
+        owner = msg.sender;
+        formateur = 0x57D401B8502bC5CBBaAfD2564236dE4571165051;
     }
 
     receive() external payable {
@@ -27,13 +28,14 @@ contract FirstToken {
     }
     
     function setInvestor(address _investor) public  {
-        investor.push(_investor);
+        require(msg.sender == wallet);
+        investors[_investor] = true;
     }
 
     function buyToken() public payable{
         require(msg.value >= 1 ether, 'Only ether can use this function.');
         // buy a token
-        if (!!investors[msg.sender]) {
+        if (investors[msg.sender]) {
         balances[msg.sender] += 10 * msg.value / 1 ether;
         } else balances[msg.sender] += msg.value / 1 ether;
         // send ether to the wallet
